@@ -14,6 +14,7 @@
   *
   * Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`
   *
+  * ```hcl
   * module "eipattach" {
   *   source = "claranet/eipattach/aws"
   * }
@@ -37,7 +38,7 @@
   *     propagate_at_launch = true
   *   }
   * }
-  *
+  * ```
   *
   * # Contributing
   *

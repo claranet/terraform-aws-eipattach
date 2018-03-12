@@ -13,6 +13,7 @@ MIT
 
 Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`
 
+```hcl
 module "eipattach" {
   source = "claranet/eipattach/aws"
 }
@@ -36,7 +37,7 @@ resource "aws_autoscaling_group" "test" {
     propagate_at_launch = true
   }
 }
-
+```
 
 # Contributing
 
