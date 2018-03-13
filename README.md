@@ -5,11 +5,13 @@ Terraform module to automatically attach an Elastic IP address to an instance on
 This module will automatically attach an appropriately tagged Elastic IP address to an
 appropriately tagged AWS instance when that instance is created (presumably via autoscaling).
 
-# License
+## License
 
 MIT
 
-# Usage example
+## Usage examples
+
+### Simple
 
 Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`
 
@@ -39,7 +41,28 @@ resource "aws_autoscaling_group" "test" {
 }
 ```
 
-# Contributing
+### Machines with multiple ENIs
+
+If you have machines with multiple ENIs, you must tag the ENI appropriately rather
+than the instance:
+
+```hcl
+resource "aws_eip" "test_eni" {
+  tags {
+    EIP = "barbaz"
+  }
+}
+
+resource "aws_network_interface" "test_eni" {
+subnet_id = "${aws_subnet.test.id}"
+
+  tags {
+    EIP = "barbaz"
+  }
+}
+```
+
+## Contributing
 
 Please submit pull requests at https://github.com/claranet/terraform-aws-eipattach/
 

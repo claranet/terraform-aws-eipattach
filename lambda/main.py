@@ -2,7 +2,6 @@ import boto3
 import os
 
 TAG_KEY = os.environ.get('TAG_KEY')
-DRY_RUN = os.environ.get('DRY_RUN', False)
 
 
 def lambda_handler(event, context):
@@ -11,9 +10,12 @@ def lambda_handler(event, context):
         {'Name': 'tag-key', 'Values': [TAG_KEY]}])
     associated_instances = []  # An array of instances with EIPs attached
     for address in response.get('Addresses', []):
-        instance_id = address.get('InstanceId')
-        if instance_id:
-            associated_instances.append(instance_id)
+        resource_id = address.get('InstanceId')
+        eni_id = address.get('NetworkInterfaceId')
+        if resource_id:
+            associated_instances.append(resource_id)
+        if eni_id:
+            associated_instances.append(eni_id)
     # Loop through again looking for unattached EIPs and attach them
     for address in response.get('Addresses', []):
         if not address.get('AssociationId'):
@@ -26,16 +28,22 @@ def lambda_handler(event, context):
                     'Values': [tag_value],
                      }])
             for resource in tag_response.get('Tags', []):
-                instance_id = resource.get('ResourceId')
+                resource_id = resource.get('ResourceId')  # Could be an ENI ID
                 allocation_id = address.get('AllocationId')
-                if (instance_id not in associated_instances
-                        and resource.get('ResourceType')
-                        in ('instance', 'network-interface')):
-                    assoc_response = ec2.associate_address(
+                resource_type = resource.get('ResourceType')
+                if (resource_id not in associated_instances
+                        and resource_type in
+                        ('instance', 'network-interface')):
+                    assoc_response = None
+                    if resource_type == 'instance':
+                        assoc_response = ec2.associate_address(
                             AllocationId=allocation_id,
-                            InstanceId=instance_id,
-                            DryRun=DRY_RUN)
+                            InstanceId=resource_id)
+                    if resource_type == 'network-interface':
+                        assoc_response = ec2.associate_address(
+                            AllocationId=allocation_id,
+                            NetworkInterfaceId=resource_id)
                     assocation_id = assoc_response.get('AssociationId')
                     print ("%s given to %s (%s)" % (address.get('PublicIp'),
-                           instance_id, assocation_id))
+                           resource_id, assocation_id))
                     break

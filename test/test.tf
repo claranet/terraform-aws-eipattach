@@ -51,6 +51,20 @@ resource "aws_eip" "test" {
   }
 }
 
+resource "aws_eip" "test_eni" {
+  tags {
+    EIP = "barbaz"
+  }
+}
+
+resource "aws_network_interface" "test_eni" {
+  subnet_id = "${aws_subnet.test.id}"
+
+  tags {
+    EIP = "barbaz"
+  }
+}
+
 resource "aws_autoscaling_group" "test" {
   name                 = "test"
   max_size             = 1
