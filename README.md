@@ -13,11 +13,13 @@ MIT
 
 ### Simple
 
-Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`
+Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`, and disable
+source/dest checking.
 
 ```hcl
 module "eipattach" {
-  source = "claranet/eipattach/aws"
+  source              = "claranet/eipattach/aws"
+  disable_source_dest = true
 }
 
 resource "aws_eip" "test" {
@@ -76,6 +78,7 @@ The README.md is generated with
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
+| disable_source_dest | Whether to disable source/dest checking when attaching an EIP | `false` | no |
 | name | Name to use for resources | `terraform-aws-eipattach` | no |
 | schedule | Schedule for running the Lambda function | `rate(1 minute)` | no |
 | tag_name | Tag to use to associate EIPs with instances | `EIP` | no |

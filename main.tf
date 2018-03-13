@@ -14,11 +14,13 @@
   *
   * ### Simple
   *
-  * Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`
+  * Give the instance tagged `EIP foobar` the EIP tagged `EIP foobar`, and disable
+  * source/dest checking.
   *
   * ```hcl
   * module "eipattach" {
-  *   source = "claranet/eipattach/aws"
+  *   source              = "claranet/eipattach/aws"
+  *   disable_source_dest = true
   * }
   *
   * resource "aws_eip" "test" {
@@ -89,7 +91,8 @@ module "lambda" {
 
   environment {
     variables {
-      TAG_KEY = "${var.tag_name}"
+      TAG_KEY             = "${var.tag_name}"
+      DISABLE_SOURCE_DEST = "${var.disable_source_dest}"
     }
   }
 }
@@ -102,6 +105,7 @@ data "aws_iam_policy_document" "lambda" {
       "ec2:DescribeAddresses",
       "ec2:DescribeTags",
       "ec2:AssociateAddress",
+      "ec2:ModifyInstanceAttribute",
     ]
 
     resources = [

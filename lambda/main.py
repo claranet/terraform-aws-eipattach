@@ -2,6 +2,9 @@ import boto3
 import os
 
 TAG_KEY = os.environ.get('TAG_KEY')
+DISABLE_SOURCE_DEST = False
+if os.environ.get('DISABLE_SOURCE_DEST', 'false') != 'false':
+    DISABLE_SOURCE_DEST = True
 
 
 def lambda_handler(event, context):
@@ -39,11 +42,18 @@ def lambda_handler(event, context):
                         assoc_response = ec2.associate_address(
                             AllocationId=allocation_id,
                             InstanceId=resource_id)
+                        if DISABLE_SOURCE_DEST:
+                            print("Disabling source/dest check for ",
+                                  resource_id)
+                            ec2.modify_instance_attribute(
+                                    SourceDestCheck={'Value': False},
+                                    InstanceId=resource_id)
                     if resource_type == 'network-interface':
                         assoc_response = ec2.associate_address(
                             AllocationId=allocation_id,
                             NetworkInterfaceId=resource_id)
                     assocation_id = assoc_response.get('AssociationId')
-                    print ("%s given to %s (%s)" % (address.get('PublicIp'),
-                           resource_id, assocation_id))
-                    break
+                    if assocation_id:
+                        print ("%s given to %s (%s)" % (address.get('PublicIp'),
+                               resource_id, assocation_id))
+                        break

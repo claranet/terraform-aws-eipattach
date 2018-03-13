@@ -17,3 +17,8 @@ variable "timeout" {
   description = "Lambda function timeout"
   default     = "60"
 }
+
+variable "disable_source_dest" {
+  description = "Whether to disable source/dest checking when attaching an EIP"
+  default     = "false"
+}

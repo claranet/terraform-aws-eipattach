@@ -86,5 +86,6 @@ resource "aws_launch_configuration" "test" {
 }
 
 module "eip" {
-  source = "../"
+  source              = "../"
+  disable_source_dest = true
 }
