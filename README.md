@@ -53,7 +53,6 @@ The README.md is generated with
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
-| dryrun | If true, don't actually attach EIPs | `false` | no |
 | name | Name to use for resources | `terraform-aws-eipattach` | no |
 | schedule | Schedule for running the Lambda function | `rate(1 minute)` | no |
 | tag_name | Tag to use to associate EIPs with instances | `EIP` | no |

@@ -17,8 +17,3 @@ variable "timeout" {
   description = "Lambda function timeout"
   default     = "60"
 }
-
-variable "dryrun" {
-  description = "If true, don't actually attach EIPs"
-  default     = false
-}
