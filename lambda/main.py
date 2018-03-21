@@ -30,6 +30,7 @@ def lambda_handler(event, context):
                     'Name': 'tag:' + TAG_KEY,
                     'Values': [tag_value],
                      }])
+            public_ip = address.get('PublicIp')
             for resource in tag_response.get('Tags', []):
                 resource_id = resource.get('ResourceId')  # Could be an ENI ID
                 allocation_id = address.get('AllocationId')
@@ -37,23 +38,31 @@ def lambda_handler(event, context):
                 if (resource_id not in associated_instances
                         and resource_type in
                         ('instance', 'network-interface')):
-                    assoc_response = None
+                    assoc_response = {}
                     if resource_type == 'instance':
-                        assoc_response = ec2.associate_address(
-                            AllocationId=allocation_id,
-                            InstanceId=resource_id)
-                        if DISABLE_SOURCE_DEST:
-                            print("Disabling source/dest check for ",
-                                  resource_id)
-                            ec2.modify_instance_attribute(
-                                    SourceDestCheck={'Value': False},
+                        try:
+                            assoc_response = ec2.associate_address(
+                                    AllocationId=allocation_id,
                                     InstanceId=resource_id)
+                            if DISABLE_SOURCE_DEST:
+                                print("Disabling source/dest check for ",
+                                      resource_id)
+                                ec2.modify_instance_attribute(
+                                        SourceDestCheck={'Value': False},
+                                        InstanceId=resource_id)
+                        except:
+                            print("Error associating %s with %s" %
+                                  public_ip, resource_id)
                     if resource_type == 'network-interface':
-                        assoc_response = ec2.associate_address(
-                            AllocationId=allocation_id,
-                            NetworkInterfaceId=resource_id)
+                        try:
+                            assoc_response = ec2.associate_address(
+                                    AllocationId=allocation_id,
+                                    NetworkInterfaceId=resource_id)
+                        except:
+                            print("Error associating %s with %s" %
+                                  public_ip, resource_id)
                     assocation_id = assoc_response.get('AssociationId')
                     if assocation_id:
-                        print ("%s given to %s (%s)" % (address.get('PublicIp'),
+                        print ("%s given to %s (%s)" % (public_ip,
                                resource_id, assocation_id))
                         break
