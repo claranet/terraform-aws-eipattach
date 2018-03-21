@@ -60,7 +60,7 @@ def lambda_handler(event, context):
                                     NetworkInterfaceId=resource_id)
                         except:
                             print("Error associating %s with %s" %
-                                  public_ip, resource_id)
+                                  (public_ip, resource_id))
                     assocation_id = assoc_response.get('AssociationId')
                     if assocation_id:
                         print ("%s given to %s (%s)" % (public_ip,
