@@ -50,17 +50,17 @@ def lambda_handler(event, context):
                                 ec2.modify_instance_attribute(
                                         SourceDestCheck={'Value': False},
                                         InstanceId=resource_id)
-                        except:
-                            print("Error associating %s with %s" %
-                                  public_ip, resource_id)
+                        except Exception as error:
+                            print("Error associating %s with %s - %s" %
+                                  (public_ip, resource_id, error))
                     if resource_type == 'network-interface':
                         try:
                             assoc_response = ec2.associate_address(
                                     AllocationId=allocation_id,
                                     NetworkInterfaceId=resource_id)
-                        except:
-                            print("Error associating %s with %s" %
-                                  (public_ip, resource_id))
+                        except Exception as error:
+                            print("Error associating %s with %s - %s" %
+                                  (public_ip, resource_id, error))
                     assocation_id = assoc_response.get('AssociationId')
                     if assocation_id:
                         print ("%s given to %s (%s)" % (public_ip,
