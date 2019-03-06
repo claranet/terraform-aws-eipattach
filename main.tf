@@ -76,7 +76,7 @@
   */
 
 module "lambda" {
-  source = "claranet/lambda/aws"
+  source = "github.com/claranet/terraform-aws-lambda?ref=v0.11.2"
 
   function_name = "${var.name}"
   description   = "Attaches Elastic IPs to instances"
