@@ -32,8 +32,8 @@ resource "aws_autoscaling_group" "test" {
   name                 = "test"
   max_size             = 1
   min_size             = 1
-  launch_configuration = "${aws_launch_configuration.test.name}"
-  vpc_zone_identifier  = ["${aws_subnet.test.id}"]
+  launch_configuration = aws_launch_configuration.test.name
+  vpc_zone_identifier  = [aws_subnet.test.id]
 
   tag {
     key                 = "EIP"
@@ -56,7 +56,7 @@ resource "aws_eip" "test_eni" {
 }
 
 resource "aws_network_interface" "test_eni" {
-subnet_id = "${aws_subnet.test.id}"
+subnet_id = aws_subnet.test.id
 
   tags {
     EIP = "barbaz"
@@ -83,4 +83,3 @@ The README.md is generated with
 | schedule | Schedule for running the Lambda function | `rate(1 minute)` | no |
 | tag_name | Tag to use to associate EIPs with instances | `EIP` | no |
 | timeout | Lambda function timeout | `60` | no |
-
