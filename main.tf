@@ -33,8 +33,8 @@
   *   name                 = "test"
   *   max_size             = 1
   *   min_size             = 1
-  *   launch_configuration = "${aws_launch_configuration.test.name}"
-  *   vpc_zone_identifier  = ["${aws_subnet.test.id}"]
+  *   launch_configuration = aws_launch_configuration.test.name
+  *   vpc_zone_identifier  = [aws_subnet.test.id]
   *
   *   tag {
   *     key                 = "EIP"
@@ -57,7 +57,7 @@
   * }
   *
   * resource "aws_network_interface" "test_eni" {
-  * subnet_id = "${aws_subnet.test.id}"
+  * subnet_id = aws_subnet.test.id
   *
   *   tags {
   *     EIP = "barbaz"
@@ -76,23 +76,22 @@
   */
 
 module "lambda" {
-  source = "github.com/claranet/terraform-aws-lambda?ref=v0.11.2"
+  source = "github.com/claranet/terraform-aws-lambda?ref=v1.0.0"
 
-  function_name = "${var.name}"
+  function_name = var.name
   description   = "Attaches Elastic IPs to instances"
   handler       = "main.lambda_handler"
   runtime       = "python3.6"
-  timeout       = "${var.timeout}"
+  timeout       = var.timeout
 
   source_path = "${path.module}/lambda"
 
-  attach_policy = true
-  policy        = "${data.aws_iam_policy_document.lambda.json}"
+  policy = data.aws_iam_policy_document.lambda.json
 
-  environment {
-    variables {
-      TAG_KEY             = "${var.tag_name}"
-      DISABLE_SOURCE_DEST = "${var.disable_source_dest}"
+  environment = {
+    variables = {
+      TAG_KEY             = var.tag_name
+      DISABLE_SOURCE_DEST = var.disable_source_dest
     }
   }
 }
@@ -116,26 +115,26 @@ data "aws_iam_policy_document" "lambda" {
       test     = "ForAllValues:StringEquals"
       variable = "aws:TagKeys"
 
-      values = ["${var.tag_name}"]
+      values = [var.tag_name]
     }
   }
 }
 
 resource "aws_cloudwatch_event_rule" "schedule" {
   name                = "${var.name}-schedule"
-  schedule_expression = "${var.schedule}"
+  schedule_expression = var.schedule
 }
 
 resource "aws_cloudwatch_event_target" "schedule" {
   target_id = "${var.name}-schedule"
-  rule      = "${aws_cloudwatch_event_rule.schedule.name}"
-  arn       = "${module.lambda.function_arn}"
+  rule      = aws_cloudwatch_event_rule.schedule.name
+  arn       = module.lambda.function_arn
 }
 
 resource "aws_lambda_permission" "schedule" {
   statement_id  = "${var.name}-schedule"
   action        = "lambda:InvokeFunction"
-  function_name = "${module.lambda.function_name}"
+  function_name = module.lambda.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_event_rule.schedule.arn}"
+  source_arn    = aws_cloudwatch_event_rule.schedule.arn
 }
